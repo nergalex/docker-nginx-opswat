@@ -66,7 +66,7 @@ get_deployment_id() {
 is_process_running() {
     local pid=$1
     ps fuxwa
-    sleep 10
+    sleep 10000
 #    if ps -p $pid > /dev/null
 #    then
 #        return 0
