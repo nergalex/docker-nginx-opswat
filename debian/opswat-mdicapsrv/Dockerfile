@@ -8,6 +8,14 @@ ENV PYTHON_PATH ${WORK_DIR}/builder/python
 
 RUN apt update -y && \
     apt install -y gcc make wget libfindbin-libs-perl && \
+    apt-get install --no-install-recommends --no-install-suggests -y \
+                        vim  \
+                        procps  \
+                        binutils  \
+                        net-tools  \
+                        jq  \
+                        tcpdump \
+                        apt-utils && \
     mkdir -p ${OPENSSL_PATH} ${CURL_PATH} && \
     wget https://www.openssl.org/source/openssl-1.1.1q.tar.gz -O ${WORK_DIR}/openssl-1.1.1q.tar.gz && \
     cd ${WORK_DIR} && tar -xvf openssl-1.1.1q.tar.gz && cd openssl-1.1.1q && \
