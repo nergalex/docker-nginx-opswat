@@ -150,7 +150,6 @@ RUN apt-get install --no-install-recommends --no-install-suggests -y \
                         jq  \
                         tcpdump \
                         apt-utils && \
-    ls -al && \
     dpkg -i /mdicapsrv-feature_http_protocol_for_nginx_module.deb && \
     rm -f /mdicapsrv-feature_http_protocol_for_nginx_module.deb
     # dpkg-deb -x /mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT}
