@@ -141,14 +141,14 @@ RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
     mkdir -p ${INSTALL_ROOT}/var/tmp/mdicapsrv
 
 # Package for troubleshoot
-#RUN apt-get install --no-install-recommends --no-install-suggests -y \
-#                        vim  \
-#                        procps  \
-#                        binutils  \
-#                        net-tools  \
-#                        jq  \
-#                        tcpdump \
-#                        apt-utils
+RUN apt-get install --no-install-recommends --no-install-suggests -y \
+                        vim  \
+                        procps  \
+                        binutils  \
+                        net-tools  \
+                        jq  \
+                        tcpdump \
+                        apt-utils
 
 # NGINX module
 #COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT}
