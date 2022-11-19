@@ -109,14 +109,6 @@ COPY --from=builder ${WORK_DIR}/builder ${WORK_DIR}/builder
 # Install prerequisites
 RUN apt update -y && \
     apt install -y ca-certificates jq procps libldap-2.4-2 && \
-    apt-get install --no-install-recommends --no-install-suggests -y \
-                        vim  \
-                        procps  \
-                        binutils  \
-                        net-tools  \
-                        jq  \
-                        tcpdump \
-                        apt-utils && \
     mkdir -p ${WORK_DIR} && \
     cp -R ${OPENSSL_PATH}/lib/* /usr/local/lib && \
     cp -R ${OPENSSL_PATH}/include/* /usr/local/include && \
@@ -147,6 +139,20 @@ RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
     chmod -R +x ${LIBRARY_PATH} && \
     mkdir -p ${INSTALL_ROOT}/var/run/mdicapsrv && \
     mkdir -p ${INSTALL_ROOT}/var/tmp/mdicapsrv
+
+# NGINX module
+COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb /
+RUN apt-get install --no-install-recommends --no-install-suggests -y \
+                        vim  \
+                        procps  \
+                        binutils  \
+                        net-tools  \
+                        jq  \
+                        tcpdump \
+                        apt-utils && \
+    dpkg-deb -x /mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT} && \
+    rm -f /mdicapsrv-feature_http_protocol_for_nginx_module.deb
+    # dpkg -i -x ${INSTALL_ROOT}/mdicapsrv-feature_http_protocol_for_nginx_module.deb
 
 # Patch for running with non-root user
 RUN chmod 755 ${WORK_DIR}/patch.sh && \
