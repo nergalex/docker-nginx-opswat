@@ -135,8 +135,7 @@ RUN chmod 755 ${WORK_DIR}/entrypoint.sh && \
 
 # Extract ICAP package
 RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
-    cd ${INSTALL_ROOT} && \
-    dpkg -i ${PACKAGE_FILE} || sudo apt-get install -f && \
+    dpkg-deb -x ${PACKAGE_FILE} ${INSTALL_ROOT} && \
     chmod -R +x ${LIBRARY_PATH} && \
     mkdir -p ${INSTALL_ROOT}/var/run/mdicapsrv && \
     mkdir -p ${INSTALL_ROOT}/var/tmp/mdicapsrv

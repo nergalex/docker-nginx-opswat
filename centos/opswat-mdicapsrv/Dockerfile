@@ -4,7 +4,7 @@ SHELL [ "/bin/bash", "-c" ]
 
 # Install prerequisites
 RUN yum -y update && \
-    yum install -y make gcc perl-core pcre-devel wget zlib-devel curl sudo vim procps gnupg binutils net-tools jq tcpdump
+    yum install -y make gcc perl-core pcre-devel wget zlib-devel
 #########################################
 #Install OpenSSL fix vulnerabilities  ###
 #########################################
@@ -90,6 +90,9 @@ RUN yum -y install epel-release && \
     yum -y install jq && \
     yum clean all
 
+# Install troubleshoot tools
+RUN yum -y install vim procps gnupg binutils net-tools tcpdump
+
 # Prepare installer
 ADD *.* ${WORK_DIR}/
 RUN chmod 755 ${WORK_DIR}/entrypoint.sh && \
@@ -97,8 +100,8 @@ RUN chmod 755 ${WORK_DIR}/entrypoint.sh && \
     else curl -X GET https://metascanbucket.s3.amazonaws.com/Metadefender/ICAP_Server/${VERSION}-1/centos/${PACKAGE_NAME} --output ${PACKAGE_FILE}; fi
 
 # Replace systemD with script based solution as Docker container cannot be run in privileged mode in ACI
-RUN mv -f ${WORK_DIR}/systemctl.py /usr/bin/systemctl && \
-    chmod 755 /usr/bin/systemctl
+#RUN mv -f ${WORK_DIR}/systemctl.py /usr/bin/systemctl && \
+#    chmod 755 /usr/bin/systemctl
 
 # Extract ICAP package
 RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
@@ -108,18 +111,18 @@ RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
     mkdir -p ${INSTALL_ROOT}/var/tmp/mdicapsrv
 
 # Patch for running with non-root user
-RUN chmod 755 ${WORK_DIR}/patch.sh && \
-    chmod 755 ${WORK_DIR}/* && \
-    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}   ${DATA_DIR}    ${RUNTIME_PATH}    ${TEMP_PATH}    ${LOG_PATH}    ${ICAP_CONF}    ${DEFAULT_ICAP_CONF} && \
-    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/etc/logrotate.d/mdicapsrv && \
-    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-watchdog.sh && \
-    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh && \
-    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
-    sed -i -r "s/(User=mdicapsrv)/User=${RUN_USER}/g"                                                                                       ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
-    sed -i -r 's/(ExecStart=.*)/\1 ${ICAP_CONF}/g'                                                                                          ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
-    sed -i -r "/ExecStartPre=.*/d"                                                                                                          ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
-    sed -i -r "/PIDFile=.*/d"                                                                                                               ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
-    sed -i '2s;^;source ${SYSTEM_DIR}/mdicapsrv\n;'                                                                                         ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh
+#RUN chmod 755 ${WORK_DIR}/patch.sh && \
+#    chmod 755 ${WORK_DIR}/* && \
+#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}   ${DATA_DIR}    ${RUNTIME_PATH}    ${TEMP_PATH}    ${LOG_PATH}    ${ICAP_CONF}    ${DEFAULT_ICAP_CONF} && \
+#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/etc/logrotate.d/mdicapsrv && \
+#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-watchdog.sh && \
+#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh && \
+#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
+#    sed -i -r "s/(User=mdicapsrv)/User=${RUN_USER}/g"                                                                                       ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
+#    sed -i -r 's/(ExecStart=.*)/\1 ${ICAP_CONF}/g'                                                                                          ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
+#    sed -i -r "/ExecStartPre=.*/d"                                                                                                          ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
+#    sed -i -r "/PIDFile=.*/d"                                                                                                               ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv.service && \
+#    sed -i '2s;^;source ${SYSTEM_DIR}/mdicapsrv\n;'                                                                                         ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh
 
 # Update ICAP config file with custom path
 RUN echo "[internal]"                                       >> ${DEFAULT_ICAP_CONF} && \
@@ -145,13 +148,13 @@ EXPOSE ${ICAP_PORT}
 EXPOSE ${ICAPS_PORT}
 
 # Workaround for arbitrary UID/GID
-RUN mkdir -p "${PW_PATH}" && \
-    chmod 777 "${PW_PATH}" && \
-    mv /etc/passwd /etc/group "${PW_PATH}" && \
-    chmod 666 "${PW_PATH}/passwd" "${PW_PATH}/group" && \
-    ln -sf "${PW_PATH}/passwd" /etc/passwd && \
-    ln -sf "${PW_PATH}/group" /etc/group && \
-    chmod 777 -R ${ICAP_DATA_PATH} ${OS_CERTS_STORE_PATH} ${OS_CERTS_INSTALL_PATH} ${SYSTEM_DIR}
+#RUN mkdir -p "${PW_PATH}" && \
+#    chmod 777 "${PW_PATH}" && \
+#    mv /etc/passwd /etc/group "${PW_PATH}" && \
+#    chmod 666 "${PW_PATH}/passwd" "${PW_PATH}/group" && \
+#    ln -sf "${PW_PATH}/passwd" /etc/passwd && \
+#    ln -sf "${PW_PATH}/group" /etc/group && \
+#    chmod 777 -R ${ICAP_DATA_PATH} ${OS_CERTS_STORE_PATH} ${OS_CERTS_INSTALL_PATH} ${SYSTEM_DIR}
 
 VOLUME [ "${ICAP_DATA_PATH}", "${PW_PATH}", "${SYSTEM_DIR}", "${OS_CERTS_STORE_PATH}", "${OS_CERTS_INSTALL_PATH}"]
 
