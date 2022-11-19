@@ -65,12 +65,12 @@ get_deployment_id() {
 # Check ICAP Server process is running
 is_process_running() {
     local pid=$1
-#    ps fuxwa
-#    sleep 10000
-    if ps -p $pid > /dev/null
-    then
-        return 0
-    fi
+    ps fuxwa
+    sleep 10000
+#    if ps -p $pid > /dev/null
+#    then
+#        return 0
+#    fi
     return 1
 }
 

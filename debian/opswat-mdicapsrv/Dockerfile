@@ -140,8 +140,7 @@ RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
     mkdir -p ${INSTALL_ROOT}/var/run/mdicapsrv && \
     mkdir -p ${INSTALL_ROOT}/var/tmp/mdicapsrv
 
-# NGINX module
-COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb /
+# Package for troubleshoot
 RUN apt-get install --no-install-recommends --no-install-suggests -y \
                         vim  \
                         procps  \
@@ -149,10 +148,15 @@ RUN apt-get install --no-install-recommends --no-install-suggests -y \
                         net-tools  \
                         jq  \
                         tcpdump \
-                        apt-utils && \
-    dpkg -i /mdicapsrv-feature_http_protocol_for_nginx_module.deb && \
+                        apt-utils
+
+# NGINX module
+#COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT}
+#RUN dpkg -i ${INSTALL_ROOT}/mdicapsrv-feature_http_protocol_for_nginx_module.deb && \
+#    rm -f /mdicapsrv-feature_http_protocol_for_nginx_module.deb \
+COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb /
+RUN dpkg-deb -x /mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT} && \
     rm -f /mdicapsrv-feature_http_protocol_for_nginx_module.deb
-    # dpkg-deb -x /mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT}
 
 # Patch for running with non-root user
 RUN chmod 755 ${WORK_DIR}/patch.sh && \
