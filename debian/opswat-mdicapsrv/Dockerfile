@@ -141,14 +141,14 @@ RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
     mkdir -p ${INSTALL_ROOT}/var/tmp/mdicapsrv
 
 # Package for troubleshoot
-RUN apt-get install --no-install-recommends --no-install-suggests -y \
-                        vim  \
-                        procps  \
-                        binutils  \
-                        net-tools  \
-                        jq  \
-                        tcpdump \
-                        apt-utils
+#RUN apt-get install --no-install-recommends --no-install-suggests -y \
+#                        vim  \
+#                        procps  \
+#                        binutils  \
+#                        net-tools  \
+#                        jq  \
+#                        tcpdump \
+#                        apt-utils
 
 # NGINX module
 #COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT}
@@ -159,18 +159,18 @@ RUN apt-get install --no-install-recommends --no-install-suggests -y \
 #    rm -f /mdicapsrv-feature_http_protocol_for_nginx_module.deb
 
 # Patch for running with non-root user
-#RUN chmod 755 ${WORK_DIR}/patch.sh && \
-#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}   ${DATA_DIR}    ${RUNTIME_PATH}    ${TEMP_PATH}    ${LOG_PATH}    ${ICAP_CONF}    ${DEFAULT_ICAP_CONF} && \
-#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/etc/logrotate.d/mdicapsrv && \
-#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-watchdog.sh && \
-#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh && \
-#    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
-#    sed -i -r 's/(USER=mdicapsrv)/USER=${RUN_USER}/g'                                                                                       ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
-#    sed -i -r "s/(sysctl)/\#\1/g"                                                                                                           ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
-#    sed -i -r "s/(ulimit)/\#\1/g"                                                                                                           ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
-#    sed -i -r "s/daemon --user \$USER/daemon/g"                                                                                             ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
-#    sed -i -r 's/(DAEMON_OPTS=\"\")/DAEMON_OPTS=${ICAP_CONF}/g'                                                                             ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
-#    sed -i '2s;^;source ${SYSTEM_DIR}/mdicapsrv\n;'                                                                                         ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh
+RUN chmod 755 ${WORK_DIR}/patch.sh && \
+    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}   ${DATA_DIR}    ${RUNTIME_PATH}    ${TEMP_PATH}    ${LOG_PATH}    ${ICAP_CONF}    ${DEFAULT_ICAP_CONF} && \
+    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/etc/logrotate.d/mdicapsrv && \
+    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-watchdog.sh && \
+    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh && \
+    ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}  '${DATA_DIR}'  '${RUNTIME_PATH}'  '${TEMP_PATH}'  '${LOG_PATH}'  '${ICAP_CONF}'   ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
+    sed -i -r 's/(USER=mdicapsrv)/USER=${RUN_USER}/g'                                                                                       ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
+    sed -i -r "s/(sysctl)/\#\1/g"                                                                                                           ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
+    sed -i -r "s/(ulimit)/\#\1/g"                                                                                                           ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
+    sed -i -r "s/daemon --user \$USER/daemon/g"                                                                                             ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
+    sed -i -r 's/(DAEMON_OPTS=\"\")/DAEMON_OPTS=${ICAP_CONF}/g'                                                                             ${INSTALL_ROOT}/etc/init.d/mdicapsrv && \
+    sed -i '2s;^;source ${SYSTEM_DIR}/mdicapsrv\n;'                                                                                         ${INSTALL_ROOT}/usr/bin/mdicapsrv-collect-support-data.sh
 
 # Update ICAP config file with custom path
 RUN echo "[internal]"                                       >> ${DEFAULT_ICAP_CONF} && \
