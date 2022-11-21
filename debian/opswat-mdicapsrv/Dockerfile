@@ -57,6 +57,8 @@ ENV INSTALL_ROOT    /opt/mdicapsrv
 ENV REST_PORT       8048
 ENV ICAP_PORT       1344
 ENV ICAPS_PORT      11344
+ENV NGINX_PORT      8043
+ENV NGINXS_PORT     8443
 
 # Define apikey path to store apikey for deactivation
 ENV APIKEY_PATH     ${INSTALL_ROOT}/etc/opswat/apikey
@@ -90,7 +92,8 @@ ENV TEST_MD_CORE_CONNECTION     'false'
 #Set the default for 1 week 
 ENV AUDIT_DATA_RETENTION         168
 ENV HISTORY_DATA_RETENTION       168
-
+# Support password to encrypt/decrypt exported JSON
+ENV IMPORT_CONFIG_FILE_PASS      ""
 # Default dir
 ENV DEFAULT_RUNTIME_PATH        ${ICAP_DATA_PATH}/var/run/mdicapsrv
 ENV DEFAULT_TEMP_PATH           ${ICAP_DATA_PATH}/var/tmp/mdicapsrv
@@ -140,24 +143,6 @@ RUN mkdir -p ${INSTALL_ROOT} ${ICAP_DATA_PATH} && \
     mkdir -p ${INSTALL_ROOT}/var/run/mdicapsrv && \
     mkdir -p ${INSTALL_ROOT}/var/tmp/mdicapsrv
 
-# Package for troubleshoot
-RUN apt-get install --no-install-recommends --no-install-suggests -y \
-                        vim  \
-                        procps  \
-                        binutils  \
-                        net-tools  \
-                        jq  \
-                        tcpdump \
-                        apt-utils
-
-# NGINX module
-#COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT}
-#RUN dpkg -i ${INSTALL_ROOT}/mdicapsrv-feature_http_protocol_for_nginx_module.deb && \
-#    rm -f /mdicapsrv-feature_http_protocol_for_nginx_module.deb \
-#COPY mdicapsrv-feature_http_protocol_for_nginx_module.deb /
-#RUN dpkg-deb -x /mdicapsrv-feature_http_protocol_for_nginx_module.deb ${INSTALL_ROOT} && \
-#    rm -f /mdicapsrv-feature_http_protocol_for_nginx_module.deb
-
 # Patch for running with non-root user
 RUN chmod 755 ${WORK_DIR}/patch.sh && \
     ${WORK_DIR}/patch.sh ${INSTALL_ROOT} ${LIBRARY_PATH}   ${DATA_DIR}    ${RUNTIME_PATH}    ${TEMP_PATH}    ${LOG_PATH}    ${ICAP_CONF}    ${DEFAULT_ICAP_CONF} && \
@@ -197,6 +182,8 @@ RUN ln -sf ${SYSTEM_DIR}/mdicapsrv /etc/init.d/mdicapsrv
 EXPOSE ${REST_PORT}
 EXPOSE ${ICAP_PORT}
 EXPOSE ${ICAPS_PORT}
+EXPOSE ${NGINX_PORT}
+EXPOSE ${NGINXS_PORT}
 
 # Workaround for arbitrary UID/GID
 RUN mkdir -p "${PW_PATH}" && \

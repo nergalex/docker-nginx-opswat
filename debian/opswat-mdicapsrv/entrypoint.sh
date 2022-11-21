@@ -65,12 +65,10 @@ get_deployment_id() {
 # Check ICAP Server process is running
 is_process_running() {
     local pid=$1
-    ps fuxwa
-    sleep 10000
-#    if ps -p $pid > /dev/null
-#    then
-#        return 0
-#    fi
+    if ps -p $pid > /dev/null
+    then
+        return 0
+    fi
     return 1
 }
 
@@ -82,18 +80,19 @@ modify_execute_config()
 {
     touch ${SYSTEM_DIR}/mdicapsrv
     chmod +x ${SYSTEM_DIR}/mdicapsrv 
-    echo "#!/bin/bash"                                              > ${SYSTEM_DIR}/mdicapsrv
-    echo "export QT_PLUGIN_PATH=${QT_PLUGIN_PATH}"                  >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"                >> ${SYSTEM_DIR}/mdicapsrv 
-    echo "export DATA_DIR=${DATA_DIR}"                              >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export RUNTIME_PATH=${RUNTIME_PATH}"                      >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export TEMP_PATH=${TEMP_PATH}"                            >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export AUDIT_DATA_RETENTION=${AUDIT_DATA_RETENTION}"      >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export HISTORY_DATA_RETENTION=${HISTORY_DATA_RETENTION}"  >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export LOG_PATH=${LOG_PATH}"                              >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export ICAP_CONF=${ICAP_CONF}"                            >> ${SYSTEM_DIR}/mdicapsrv
-    echo "export RUN_USER=${RUN_USER}"                              >> ${SYSTEM_DIR}/mdicapsrv
-    echo "${INSTALL_ROOT}/etc/init.d/mdicapsrv \$1"                 >> ${SYSTEM_DIR}/mdicapsrv
+    echo "#!/bin/bash"                                                  > ${SYSTEM_DIR}/mdicapsrv
+    echo "export QT_PLUGIN_PATH=${QT_PLUGIN_PATH}"                      >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"                    >> ${SYSTEM_DIR}/mdicapsrv 
+    echo "export DATA_DIR=${DATA_DIR}"                                  >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export RUNTIME_PATH=${RUNTIME_PATH}"                          >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export TEMP_PATH=${TEMP_PATH}"                                >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export AUDIT_DATA_RETENTION=${AUDIT_DATA_RETENTION}"          >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export HISTORY_DATA_RETENTION=${HISTORY_DATA_RETENTION}"      >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export IMPORT_CONFIG_FILE_PASS=${IMPORT_CONFIG_FILE_PASS}"    >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export LOG_PATH=${LOG_PATH}"                                  >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export ICAP_CONF=${ICAP_CONF}"                                >> ${SYSTEM_DIR}/mdicapsrv
+    echo "export RUN_USER=${RUN_USER}"                                  >> ${SYSTEM_DIR}/mdicapsrv
+    echo "${INSTALL_ROOT}/etc/init.d/mdicapsrv \$1"                     >> ${SYSTEM_DIR}/mdicapsrv
 }
 
 # Function runs when container stop
@@ -209,6 +208,7 @@ modify_icap_config() {
     set_config_value "$ICAP_CONF" "internal/ignition_file_location" "$IGNITION_FILE"
     set_config_value "$ICAP_CONF" "logger/logfile" "$LOG_PATH/mdicapsrv.log"
     set_config_value "$ICAP_CONF" "logger/loglevel" "info"
+    set_config_value "$ICAP_CONF" "internal/librarypath" "$LIBRARY_PATH"
 
     # Modify ICAP config by JSON keys
     if ! echo $ICAP_CONF_JSON | jq -e . &> /dev/null; then
@@ -567,8 +567,8 @@ import_config() {
 	done
 	local str_path_params=$( join_by '&' ${lst_path_params[@]} )
 
-	for i in {0..3}; do 
-        local response=$(curl -k -s -H "apikey: $APIKEY" -H "Content-Type: application/json" --data-binary "@$IMPORT_CONF_FILE" -w "\n%{http_code}" -X PUT "$protocol://localhost:$REST_PORT/admin/import/configs?$str_path_params")
+	for i in {0..3}; do
+        local response=$(curl -k -s -H "apikey:$APIKEY" -H "password:$IMPORT_CONFIG_FILE_PASS" -H "Content-Type: application/zip" --data-binary "@$IMPORT_CONF_FILE" -w "\n%{http_code}" -X POST "$protocol://localhost:$REST_PORT/admin/import/v2?$str_path_params")
         local status_code=$(echo "$response" | tail -n 1)
         local content=$(echo "$response" | sed '$ d')
         if [[ $status_code == 200 ]]; then
@@ -720,9 +720,9 @@ if [[ $ENABLE_HTTPS == 1 ]]; then
 fi
 activate_license
 get_deployment_id
+set_retention
 import_config
 test_md_core_connection
-set_retention
 
 #### Wait application finished
 while [ -e /proc/$PROCESS_ID ]

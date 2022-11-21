@@ -41,6 +41,8 @@ ENV INSTALL_ROOT    /opt/mdicapsrv
 ENV REST_PORT       8048
 ENV ICAP_PORT       1344
 ENV ICAPS_PORT      11344
+ENV NGINX_PORT      8043
+ENV NGINXS_PORT     8443
 
 # Define apikey path to store apikey for deactivation
 ENV APIKEY_PATH     ${INSTALL_ROOT}/etc/opswat/apikey
@@ -74,6 +76,8 @@ ENV TEST_MD_CORE_CONNECTION     'false'
 #Set the default for 1 week 
 ENV AUDIT_DATA_RETENTION         168
 ENV HISTORY_DATA_RETENTION       168
+# Support password to encrypt/decrypt exported JSON
+ENV IMPORT_CONFIG_FILE_PASS      ""
 
 # Default dir
 ENV DEFAULT_RUNTIME_PATH        ${ICAP_DATA_PATH}/var/run/mdicapsrv
@@ -89,9 +93,6 @@ COPY --from=builder /openssl-dir /usr
 RUN yum -y install epel-release && \
     yum -y install jq && \
     yum clean all
-
-# Install troubleshoot tools
-RUN yum -y install vim procps gnupg binutils net-tools jq tcpdump
 
 # Prepare installer
 ADD *.* ${WORK_DIR}/
@@ -146,6 +147,8 @@ RUN cp -f ${INSTALL_ROOT}/usr/lib/systemd/system/mdicapsrv* /usr/lib/systemd/sys
 EXPOSE ${REST_PORT}
 EXPOSE ${ICAP_PORT}
 EXPOSE ${ICAPS_PORT}
+EXPOSE ${NGINX_PORT}
+EXPOSE ${NGINXS_PORT}
 
 # Workaround for arbitrary UID/GID
 RUN mkdir -p "${PW_PATH}" && \
