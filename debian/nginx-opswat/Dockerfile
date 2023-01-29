@@ -6,8 +6,8 @@ LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
 # Uncomment this block and the versioned nginxPackages block in the main RUN
 # instruction to install a specific release
 ENV NGINX_VERSION   27
-# ENV NJS_VERSION     0.7.4
-ENV PKG_RELEASE     2~bullseye
+ENV NJS_VERSION     0.7.7
+ENV PKG_RELEASE     1~bullseye
 
 # Download certificate and key from the customer portal (https://account.f5.com)
 # and copy to the build context
@@ -60,8 +60,8 @@ RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
         # nginx-plus-module-image-filter=${NGINX_VERSION}-${PKG_RELEASE} \
         # nginx-plus-module-perl \
         # nginx-plus-module-perl=${NGINX_VERSION}-${PKG_RELEASE} \
-        nginx-plus-module-njs \
-        # nginx-plus-module-njs=${NGINX_VERSION}+${NJS_VERSION}-${PKG_RELEASE} \
+        # nginx-plus-module-njs \
+        nginx-plus-module-njs=${NGINX_VERSION}+${NJS_VERSION}-${PKG_RELEASE} \
     " \
     && echo "Acquire::https::pkgs.nginx.com::Verify-Peer \"true\";" > /etc/apt/apt.conf.d/90nginx \
     && echo "Acquire::https::pkgs.nginx.com::Verify-Host \"true\";" >> /etc/apt/apt.conf.d/90nginx \
