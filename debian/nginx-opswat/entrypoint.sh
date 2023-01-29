@@ -2,7 +2,7 @@
 #
 # This script launches nginx and the NGINX Controller Agent.
 #
-echo "------ version 2022.11.04.01 ------"
+echo "------ version 2023.01.29.01 ------"
 
 # Variables
 agent_conf_file="/etc/nginx-agent/nginx-agent.conf"
@@ -62,8 +62,13 @@ if [ -n "${controller_host}" -o -n "${instance_group}" ]; then
     chown nginx ${agent_conf_file} > /dev/null 2>&1
 fi
 
-echo "starting nginx-agent ..."
-/usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
+if [ -n "${instance_group}" ]; then
+  echo "starting nginx-agent with instance group ${instance_group}..."
+  /usr/bin/nginx-agent --instance-group ${instance_group} > /dev/null 2>&1 < /dev/null &
+else
+  echo "starting nginx-agent..."
+  /usr/bin/nginx-agent > /dev/null 2>&1 < /dev/null &
+fi
 
 agent_pid=$!
 
