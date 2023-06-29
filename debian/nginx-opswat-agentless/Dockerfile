@@ -5,8 +5,8 @@ LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
 # Define NGINX versions for NGINX Plus and NGINX Plus modules
 # Uncomment this block and the versioned nginxPackages block in the main RUN
 # instruction to install a specific release
-ENV NGINX_VERSION   27
-ENV NJS_VERSION     0.7.7
+ENV NGINX_VERSION   29
+ENV NJS_VERSION     0.7.12
 ENV PKG_RELEASE     1~bullseye
 
 # Download certificate and key from the customer portal (https://account.f5.com)
