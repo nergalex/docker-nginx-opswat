@@ -91,7 +91,6 @@ FROM opswat-installer as cleaner
 RUN apt-get autoremove --purge -y \
       gnupg \
       apt-transport-https \
-      lsb-release \
   && rm -rf /root/.gnupg \
   && rm -rf /var/lib/apt/lists/*
 
